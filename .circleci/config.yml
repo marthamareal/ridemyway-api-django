@@ -1,56 +1,114 @@
-# Python CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-python/ for more details
-#
-version: 2
-jobs:
-  build:
-    docker:
+project_defaults: &defaults
+  docker:
       - image: circleci/python:3.7.2
         environment:
           PIPENV_VENV_IN_PROJECT: true
+          CC_TEST_REPORTER_ID: ${CC_TEST_REPORTER_ID}
           TEST_DATABASE_URL: postgresql://root@localhost/circle_test
+
       - image: circleci/postgres:9.6.2
         environment:
           POSTGRES_USER: root
           POSTGRES_DB: circle_test
 
-    working_directory: ~/ridemyway-api-django
+  working_directory: ~/ridemyway-api-django
 
+cmd_download_cc_test_reporter: &cmd_download_cc_test_reporter
+  run:
+    name:  Download cc-test-reporter
+    command: |
+      mkdir -p tmp/
+      curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > /tmp/cc-test-reporter
+      chmod +x /tmp/cc-test-reporter
+
+cmd_attach_workspace: &cmd_attach_workspace
+  attach_workspace:
+    at: tmp/
+
+cmd_install_dependencies: &cmd_install_dependencies
+  run:
+    name: Install dependencies
+    command: |
+      curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash
+      export PATH="/home/circleci/.pyenv/bin:$PATH"
+      eval "$(pyenv init -)"
+      eval "$(pyenv virtualenv-init -)"
+      pyenv install 3.7.2 -s
+      pyenv local 3.7.2
+      pip3 install --user pipenv==2018.5.18
+      python3 -m pip install pipenv==2018.5.18
+      python3 -m pipenv install
+
+cmd_save_cache: &cmd_save_cache
+  save_cache:
+    key: api-dependencies-{{ checksum "Pipfile.lock" }}
+    paths:
+      - $(python3 -m pipenv --venv)
+
+cmd_restore_cache: &cmd_restore_cache
+  restore_cache:
+    keys:
+      - api-dependencies-{{ checksum "Pipfile.lock" }}
+      # fallback to using the latest cache if no exact match is found
+      - api-dependencies-
+
+
+# Python CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-python/ for more details
+
+version: 2
+jobs:
+  build:
+    <<: *defaults
     steps:
       - checkout
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - api-dependencies-{{ checksum "Pipfile.lock" }}
-            # fallback to using the latest cache if no exact match is found
-            - api-dependencies-
+      - *cmd_install_dependencies
+      - *cmd_save_cache
+      - *cmd_download_cc_test_reporter
 
-      - run:
-          name: Install dependencies
-          command: |
-            curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash
-            export PATH="/home/circleci/.pyenv/bin:$PATH"
-            eval "$(pyenv init -)"
-            eval "$(pyenv virtualenv-init -)"
-            pyenv install 3.7.2 -s
-            pyenv local 3.7.2
-            pip3 install --user pipenv==2018.5.18
-            python3 -m pip install pipenv==2018.5.18
-            python3 -m pipenv install
+  run_tests:
+    <<: *defaults
+    steps:
+      - checkout
+      - *cmd_attach_workspace
+      - *cmd_install_dependencies
+      - *cmd_save_cache
+      - *cmd_restore_cache
+      - *cmd_download_cc_test_reporter
 
-      - save_cache:
-          key: api-dependencies-{{ checksum "Pipfile.lock" }}
-          paths:
-            - $(python3 -m pipenv --venv)
-
-      # run tests!
       - run:
           name: Run tests
           command: |
             source $(python3 -m pipenv --venv)/bin/activate
-            python manage.py test
+            pytest --cov=ridemyway/api --cov-report xml
+            /tmp/cc-test-reporter format-coverage coverage.xml -t "coverage.py" -o "tmp/cc.testreport.json"
 
-      - store_artifacts:
-          path: test-reports
-          destination: test-reports
+      - persist_to_workspace:
+          root: tmp/
+          paths:
+            - cc.testreport.json
+
+  upload_coverage:
+    <<: *defaults
+    steps:
+      - checkout
+      - *cmd_download_cc_test_reporter
+      - *cmd_attach_workspace
+
+      - run:
+          name: Upload coverage results to Code Climate
+          command: |
+            /tmp/cc-test-reporter upload-coverage -i tmp/cc.testreport.json
+            
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - run_tests:
+          requires:
+            - build
+      - upload_coverage:
+          requires:
+            - run_tests
