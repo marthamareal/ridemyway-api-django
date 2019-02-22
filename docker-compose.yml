@@ -1,0 +1,38 @@
+version: '3'
+services:
+  database:
+    restart: always
+    image: postgres:9.6
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=ridemyway
+    ports:
+      - '5432:5432'
+
+  app:
+    restart: always
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+    volumes:
+      - ./:/ridemyway-api-django
+    ports:
+      - '8000:8000'
+
+    environment:
+      DATABASE_URI: postgres://postgres:postgres@database:5432/ridemyway
+    depends_on:
+      - database
+    links:
+      - database
+      # Entrypoint sets the command and parameters that will be executed first when a container is run.
+    entrypoint: ["/bin/bash","-c","/ridemyway-api-django/docker/start_app.sh"]
+    stdin_open: true
+    tty: true
+
+  test_app:
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+    command: pytest --cov=ridemyway/api --cov-report xml

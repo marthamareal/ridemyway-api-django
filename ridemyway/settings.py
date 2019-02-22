@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import environ
+
+env = environ.Env()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,7 +28,7 @@ SECRET_KEY = '6y_x29&gujdea1ph=--=@2)fn6n+-zrvf#g$v&83gu61_n+mwl'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 CORS_ORIGIN_ALLOW_ALL = True # All all host to access the api
 
@@ -78,18 +81,25 @@ WSGI_APPLICATION = 'ridemyway.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
+# This approch is the commonly used while setting up django projects
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv('DB_NAME', ''),
+#         'USER': os.getenv('DB_USER', ''),
+#         'PASSWORD': os.getenv('DB_PASSWORD', ''),
+#         'HOST': os.getenv('DB_HOST', ''),
+#     }
+# }
+
+# This approach is used to minimize db settings in the common approach.
+# It expects a url like DATABASE_URI=postgres://user:password@database:5432/database_name
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', ''),
-        'USER': os.getenv('DB_USER', ''),
-        'PASSWORD': os.getenv('DB_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', ''),
-    }
+    'default': env.db('DATABASE_URI', '') # Note env.db() transposes the DATABASE_URI into a dictionary
 }
 
+DATABASES['default']['ATOMIC_REQUESTS']=True # Append ATOMIC_REQUESTS:True to the DATABASE_URI/ default dict
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
