@@ -1,0 +1,1 @@
+from .integration.authentication import test_delete

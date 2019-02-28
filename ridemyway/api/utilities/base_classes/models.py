@@ -1,8 +1,9 @@
 from uuid import uuid4
+
 from django.db import models
 
-class BaseModel(models.Model):
 
+class BaseModel(models.Model):
     id = models.UUIDField(
         primary_key=True,
         default=uuid4,
@@ -15,19 +16,7 @@ class BaseModel(models.Model):
         max_length=50,
         blank=True,
         null=True)
-    deleted = models.BooleanField(
-        default=False,
-        null=False)
-    deleted_at = models.DateTimeField(
-        default=None,
-        blank=True,
-        null=True)
-    deleted_by = models.CharField(
-        default=None,
-        max_length=50,
-        blank=True,
-        null=True)
-
 
     class Meta:
         abstract = True
+

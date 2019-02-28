@@ -83,23 +83,29 @@ WSGI_APPLICATION = 'ridemyway.wsgi.application'
 # Database
 
 # This approch is the commonly used while setting up django projects
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.getenv('DB_NAME', ''),
-#         'USER': os.getenv('DB_USER', ''),
-#         'PASSWORD': os.getenv('DB_PASSWORD', ''),
-#         'HOST': os.getenv('DB_HOST', ''),
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME', ''),
+        'USER': os.getenv('DB_USER', ''),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('PORT', '5432'),
+    }
+}
 
 # This approach is used to minimize db settings in the common approach.
 # It expects a url like DATABASE_URI=postgres://user:password@database:5432/database_name
-DATABASES = {
-    'default': env.db('DATABASE_URI', '') # Note env.db() transposes the DATABASE_URI into a dictionary
-}
 
-DATABASES['default']['ATOMIC_REQUESTS']=True # Append ATOMIC_REQUESTS:True to the DATABASE_URI/ default dict
+# DATABASES = {
+#     'default': env.db('DATABASE_URI', '') # Note env.db() transposes the DATABASE_URI into a dictionary
+# }
+# DATABASES['default']['ATOMIC_REQUESTS']=True # Append ATOMIC_REQUESTS:True to the DATABASE_URI/ default dict
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': 'ridemyway.api.utilities.helpers.renderers.ApiRenderer',
+    'EXCEPTION_HANDLER': 'ridemyway.api.utilities.exceptions.exception_handler.ridemyway_exception_handler',
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -119,6 +125,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+PASSWORD_HASHERS = [ 'django.contrib.auth.hashers.MD5PasswordHasher', ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
