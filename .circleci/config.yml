@@ -52,7 +52,7 @@ jobs:
       - run:
           name: Run tests
           command: |
-            pytest --cov=ridemyway/api --cov-report xml
+            pytest --cov=ridemyway/tests --cov-report xml
             ./cc-test-reporter format-coverage coverage.xml -t "coverage.py" -o "./cc.testreport.json"
       - run:
           name: Upload coverage results to Code Climate

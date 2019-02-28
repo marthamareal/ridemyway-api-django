@@ -30,9 +30,3 @@ services:
     entrypoint: ["/bin/bash","-c","/ridemyway-api-django/docker/start_app.sh"]
     stdin_open: true
     tty: true
-
-  test_app:
-    build:
-      context: ./
-      dockerfile: docker/Dockerfile
-    command: pytest --cov=ridemyway/api --cov-report xml

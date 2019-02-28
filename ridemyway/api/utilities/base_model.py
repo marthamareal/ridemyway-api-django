@@ -12,6 +12,7 @@ class BaseModel(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     updated_by = models.CharField(
         default=None,
+        max_length=50,
         blank=True,
         null=True)
     deleted = models.BooleanField(
@@ -23,6 +24,7 @@ class BaseModel(models.Model):
         null=True)
     deleted_by = models.CharField(
         default=None,
+        max_length=50,
         blank=True,
         null=True)
 
