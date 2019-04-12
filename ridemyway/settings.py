@@ -105,6 +105,9 @@ DATABASES = {
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': 'ridemyway.api.utilities.helpers.renderers.ApiRenderer',
     'EXCEPTION_HANDLER': 'ridemyway.api.utilities.exceptions.exception_handler.ridemyway_exception_handler',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'ridemyway.api.authentication.backends_auth.JWTAuthentication',
+    ),
 }
 
 # Password validation

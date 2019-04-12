@@ -1,4 +1,9 @@
 from django.db import models
+
+import jwt
+from datetime import datetime, timedelta
+
+from ridemyway.settings import SECRET_KEY
 from ridemyway.api.utilities.base_classes.models import BaseModel
 
 
@@ -18,3 +23,15 @@ class User(BaseModel):
 
     def __str__(self):
         return self.username
+
+    @property
+    def token(self):
+        """Method for generating a jwt token and also 
+        appending a dynamic field token on a user model through the @property decorator"""
+        payload = {
+            'id': str(self.id),
+            'username': self.username,
+            "exp": datetime.now() + timedelta(days=2)
+        }
+        return jwt.encode(payload, SECRET_KEY).decode('utf-8')
+        

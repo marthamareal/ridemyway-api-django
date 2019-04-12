@@ -1,5 +1,7 @@
 from rest_framework import serializers
+
 from .models import User
+
 from ..utilities.helpers.validators import validate_field
 from ..utilities.helpers.regex_patterns import patterns
 from ..utilities.helpers.error_messages import error_messages
@@ -12,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'email', 'password', 'username',
-                  'id_number', 'phone_number', 'image_url')
+                  'id_number', 'phone_number', 'image_url', 'token')
 
         read_only_fields = 'id',
 
