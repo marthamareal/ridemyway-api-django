@@ -19,9 +19,12 @@ services:
       - ./:/ridemyway-api-django
     ports:
       - '8000:8000'
-
     environment:
-      DATABASE_URI: postgres://postgres:postgres@database:5432/ridemyway
+      - DB_NAME=ridemyway
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=database
+      # - DATABASE_URI=postgres://postgres:postgres@database:5432/ridemyway # This is used if in ridemyway.settings database default is a db_url
     depends_on:
       - database
     links:

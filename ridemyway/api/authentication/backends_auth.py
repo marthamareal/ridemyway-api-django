@@ -7,7 +7,7 @@ from ridemyway.settings import SECRET_KEY
 from ridemyway.api.authentication.models import User
 
 
-class JWTAuthentication():
+class JWTAuthentication(BaseAuthentication):
 
     def authenticate(self, request, **kwargs):
         token = kwargs['token'] if 'token' in kwargs else get_authorization_header(request)
@@ -20,7 +20,7 @@ class JWTAuthentication():
 
             user_id, username = decoded_token['id'], decoded_token['username']
 
-            user = User.objects.filter(id=user_id, username=username)
+            user = User.objects.filter(id=user_id, username=username).first()
 
             return user, token
 
