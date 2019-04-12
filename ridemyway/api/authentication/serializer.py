@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from django.contrib.auth import authenticate
+
 from .models import User
 
 from ..utilities.helpers.validators import validate_field
@@ -7,16 +9,8 @@ from ..utilities.helpers.regex_patterns import patterns
 from ..utilities.helpers.error_messages import error_messages
 
 
-class UserSerializer(serializers.ModelSerializer):
-    """User model serializer"""
+class BaseUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
-
-    class Meta:
-        model = User
-        fields = ('id', 'email', 'password', 'username',
-                  'id_number', 'phone_number', 'image_url', 'token')
-
-        read_only_fields = 'id',
 
     def validate_email(self, field):
         """Validates an email addess
@@ -31,6 +25,31 @@ class UserSerializer(serializers.ModelSerializer):
         return validate_field(field,
                               patterns['email_pattern'],
                               error_messages['invalid_email'])
+
+    def validate_password(self, field):
+        """Validates password
+        
+        Args:
+            field (str): value for password
+        Raises:
+            ValidationError: if provided password does not match the pattern
+        Returns:
+            field (str): password value if its valid
+        """
+        return validate_field(field,
+                              patterns['password_pattern'],
+                              error_messages['invalid_password'])
+
+
+class UserSerializer(BaseUserSerializer):
+    """User model serializer"""
+
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'password', 'username',
+                  'id_number', 'phone_number', 'image_url', 'token')
+
+        read_only_fields = 'id',
 
     def validate_username(self, field):
         """Validates username
@@ -74,16 +93,37 @@ class UserSerializer(serializers.ModelSerializer):
                               patterns['phone_number_pattern'],
                               error_messages['invalid_phone_number'])
 
-    def validate_password(self, field):
-        """Validates password
-        
-        Args:
-            field (str): value for password
-        Raises:
-            ValidationError: if provided password does not match the pattern
-        Returns:
-            field (str): password value if its valid
-        """
-        return validate_field(field,
-                              patterns['password_pattern'],
-                              error_messages['invalid_password'])
+    def create(self, data):
+        return User.objects.create_user(**data)
+    
+class UserLoginSerializer(BaseUserSerializer):
+    email = serializers.CharField(max_length=255)
+    password = serializers.CharField(max_length=128, write_only=True)
+    
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password', 'token')
+
+        read_only_fields = 'id', 'username',
+    
+    def validate(self, data):
+        email = data.get('email', None)
+        password = data.get('password', None)
+
+        user = authenticate(username=email, password=password)
+
+        if user is None:
+            raise serializers.ValidationError(
+                'Invalid login in details, Please make sure your account is activated'
+            )
+
+        if not user.is_active:
+            raise serializers.ValidationError(
+                'Your account is inactive, Contact our support team for help'
+            )
+
+        return {
+            "username": user.username,
+            "email": user.email,
+            "token": user.token
+            }

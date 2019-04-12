@@ -102,6 +102,13 @@ DATABASES = {
 # }
 # DATABASES['default']['ATOMIC_REQUESTS']=True # Append ATOMIC_REQUESTS:True to the DATABASE_URI/ default dict
 
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+AUTH_USER_MODEL = 'authentication.User'
+
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': 'ridemyway.api.utilities.helpers.renderers.ApiRenderer',
     'EXCEPTION_HANDLER': 'ridemyway.api.utilities.exceptions.exception_handler.ridemyway_exception_handler',
@@ -109,6 +116,7 @@ REST_FRAMEWORK = {
         'ridemyway.api.authentication.backends_auth.JWTAuthentication',
     ),
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -128,7 +136,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-PASSWORD_HASHERS = [ 'django.contrib.auth.hashers.MD5PasswordHasher', ]
+# PASSWORD_HASHERS = [ 'django.contrib.auth.hashers.MD5PasswordHasher', ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/

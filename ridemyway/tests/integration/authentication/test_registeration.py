@@ -18,7 +18,7 @@ class TestRegistration(TestCase):
 
     def test_registration_with_valid_data_succeeds(self):
 
-        self.assertEqual(self.register_response.data['data'].get('email'), valid_user_data['email'])
+        self.assertIn( 'Your account has been successfully created.', self.register_response.data['message'],)
         self.assertEqual(self.register_response.status_code, status.HTTP_201_CREATED)
 
     def test_registration_with_invalid_data_fails(self):
