@@ -32,3 +32,38 @@ valid_update_user_data = {
     "phone_number": "+256-000-000-000",
     "image_url": "https://www.youtube.com/watch?v=CX11yw6YL1w&index=4&list=RDMM"
 }
+
+vehicle_data = {
+    "number_plate": "UBE 490S",
+    "category": "CR",
+    "color": "Black",
+    "make": "BMW",
+    "model": "2018"
+}
+
+empty_vehicle_data = {}
+
+vehicle_data_no_number_plate = {
+    "number_plate": "",
+    "category": "CR",
+    "color": "Black",
+    "make": "BMW",
+    "model": "2018"
+}
+
+vehicle_data_invalid_plate = {
+    "number_plate": "UBE490S",
+    "category": "CR",
+    "color": "Black",
+    "make": "BMW",
+    "model": "2018"
+}
+
+
+invalid_vehicle_category_choice = {
+    "number_plate": "UBD 490S",
+    "category": "BS",
+    "color": "Black",
+    "make": "BMW",
+    "model": "2018"
+}

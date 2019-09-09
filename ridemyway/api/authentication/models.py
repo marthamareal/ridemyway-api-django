@@ -47,7 +47,7 @@ class UserManager(BaseUserManager):
             id_number=id_number
         )
         user.is_superuser = True
-        user.is_active = False
+        user.is_active = True
         user.is_staff = True
         user.save()
 
