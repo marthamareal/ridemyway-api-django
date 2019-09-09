@@ -27,4 +27,5 @@ urlpatterns = [
                                            " for a ride and it can be shared by different people. With the current system."
                                            "it's very hard to get available drivers in remote areas. With this challenge,"
                                            " both riders and drivers complain about the system.")),
+    path('api/v1/', include('ridemyway.api.vehicle.urls')),
 ]
