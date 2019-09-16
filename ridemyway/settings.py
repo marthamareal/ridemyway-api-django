@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'ridemyway.api.authentication',
+    'ridemyway.api.vehicle',
 ]
 
 MIDDLEWARE = [
