@@ -47,7 +47,7 @@ class UserSerializer(BaseUserSerializer):
     class Meta:
         model = User
         fields = ('id', 'email', 'password', 'username',
-                  'id_number', 'phone_number', 'image_url', 'token')
+                  'id_number', 'phone_number', 'image_url')
 
         read_only_fields = 'id',
 
@@ -95,7 +95,8 @@ class UserSerializer(BaseUserSerializer):
 
     def create(self, data):
         return User.objects.create_user(**data)
-    
+
+
 class UserLoginSerializer(BaseUserSerializer):
     email = serializers.CharField(max_length=255)
     password = serializers.CharField(max_length=128, write_only=True)

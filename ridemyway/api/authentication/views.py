@@ -34,7 +34,7 @@ class UserView(BaseModelView):
 
 class SingleUserView(BaseSingleModelView):
     """ Generic view for retrieving, updating and deleting a user """
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
     queryset = User.objects.filter().all()
     serializer_class = UserSerializer
     model_name = 'User'
@@ -46,12 +46,13 @@ class UserLoginView(generics.GenericAPIView):
     serializer_class = UserLoginSerializer
     renderer_classes = ApiRenderer,
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class ActivateUserView(generics.GenericAPIView):
     """ Generic view for activating a user """
