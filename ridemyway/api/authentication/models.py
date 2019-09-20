@@ -18,7 +18,7 @@ class UserManager(BaseUserManager):
     to create `User` objects.
     """
 
-    def create_user(self,password=None, **data):
+    def create_user(self, password=None, **data):
         """Create and return a `User` with an email, username and password."""
 
         user = self.model(**data)
@@ -29,20 +29,21 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, username, email, password):
+        """
+        Create and return a `User` with superuser powers.
+        Superuser powers means that this use is an admin that can do anything
+        they want.
       """
-      Create and return a `User` with superuser powers.
-      Superuser powers means that this use is an admin that can do anything
-      they want.
-      """
-      if password is None:
-          raise TypeError('Superusers must have a password.')
+        if password is None:
+            raise TypeError('Superusers must have a password.')
 
-      user = self.create_user(username, email, password)
-      user.is_superuser = True
-      user.is_staff = True
-      user.save()
+        user = self.create_user(username=username, email=email, password=password)
+        user.is_superuser = True
+        user.is_active = False
+        user.is_staff = True
+        user.save()
 
-      return user
+        return user
 
 
 class User(BaseModel, AbstractBaseUser, PermissionsMixin):
@@ -81,4 +82,3 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
             "exp": datetime.now() + timedelta(days=2)
         }
         return jwt.encode(payload, SECRET_KEY).decode('utf-8')
-        
