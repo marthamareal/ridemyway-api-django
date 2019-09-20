@@ -1,10 +1,12 @@
-from django.db import models
-
 import jwt
+
 from datetime import datetime, timedelta
+from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
 )
+from django.utils.crypto import get_random_string
+
 from ridemyway.settings import SECRET_KEY
 from ridemyway.api.utilities.base_classes.models import BaseModel
 
@@ -37,13 +39,31 @@ class UserManager(BaseUserManager):
         if password is None:
             raise TypeError('Superusers must have a password.')
 
-        user = self.create_user(username=username, email=email, password=password)
+        id_number = self.create_id_number()
+        user = self.create_user(
+            username=username,
+            email=email,
+            password=password,
+            id_number=id_number
+        )
         user.is_superuser = True
         user.is_active = False
         user.is_staff = True
         user.save()
 
         return user
+
+    def create_id_number(self):
+        """
+        Creates an id_number for only super users. This is for database entry
+        Returns:
+        id_number (str): generated id
+        """
+        id_number = get_random_string(8).lower()
+        if User.objects.filter(id_number=id_number).first():
+            self.create_id_number()
+
+        return id_number
 
 
 class User(BaseModel, AbstractBaseUser, PermissionsMixin):
@@ -74,8 +94,11 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
 
     @property
     def token(self):
-        """Method for generating a jwt token and also 
-        appending a dynamic field token on a user model through the @property decorator"""
+        """
+        Method for generating a jwt token and also
+        appending a dynamic field token on a user model through the
+        @property decorator
+        """
         payload = {
             'id': str(self.id),
             'username': self.username,
