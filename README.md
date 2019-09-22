@@ -42,4 +42,7 @@ After the build, you can access and interact with the API using base url ` http:
    $ docker-compose ps  # Check running containers
    $ docker exec -it ridemyway-api-django_app_1  # Open the container using bash
    $ pytest  # Run tests using Pytest tool
+      or
+   $ pytest --cov=ridemyway/tests --cov-report html # with coverage
+
 ```

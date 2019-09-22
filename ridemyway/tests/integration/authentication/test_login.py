@@ -36,7 +36,7 @@ class TestLogin(TestCase):
 
     def test_login_with_wrong_password_data_fails(self):
         # activate account before login
-        self.user.is_active =True
+        self.user.is_active = True
         self.user.save()
 
         self.login_data['password'] = 'wrong password'
