@@ -114,3 +114,57 @@ class TestVehicle(VehicleBaseTestCase):
                 response.status_code
             ),
         )
+    
+    def test_get_vehicle_details(self):
+        user_login = {
+            "email":  self.test_user.email,
+            "password": "password123"
+        }
+
+        self.set_authorization_header(self.login_uri, user_login)
+
+        response = self.client.get(f"{self.vehicle_uri}{self.vehicle.id}/", format="json")
+        self.assertEqual(
+            response.status_code,
+            200,
+            "Expected Response Code 200, received {0} instead.".format(
+                response.status_code
+            ),
+        )
+        self.assertIn(self.vehicle.number_plate, str(response.data))
+    
+    def test_update_vehicle(self):
+        admin_login = {
+            "email":  self.admin_user.email,
+            "password": "password123"
+        }
+
+        self.set_authorization_header(self.login_uri, admin_login)
+
+        response = self.client.put(f"{self.vehicle_uri}{self.vehicle.id}/", vehicle_data, format="json")
+        self.assertEqual(
+            response.status_code,
+            200,
+            "Expected Response Code 200, received {0} instead.".format(
+                response.status_code
+            )
+        )
+        self.assertIn("Vehicle successfully updated", str(response.data))
+    
+    def test_delete_vehicle(self):
+        admin_login = {
+            "email":  self.admin_user.email,
+            "password": "password123"
+        }
+
+        self.set_authorization_header(self.login_uri, admin_login)
+
+        response = self.client.delete(f"{self.vehicle_uri}{self.vehicle.id}/", format="json")
+        self.assertEqual(
+            response.status_code,
+            200,
+            "Expected Response Code 200, received {0} instead.".format(
+                response.status_code
+            )
+        )
+        self.assertIn("Vehicle successfully deleted", str(response.data))
